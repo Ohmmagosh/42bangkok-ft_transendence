@@ -5,4 +5,12 @@ import '../scss/styles.scss';
 import * as bootstrap from 'bootstrap';
 
 // Import THREE
-import * as THREE from 'three';
+// import * as THREE from 'three';
+import render from './renderer';
+
+function main() {
+
+	render();
+}
+
+main();
