@@ -16,6 +16,9 @@ module.exports = {
     port: 8080,
     hot: true
   },
+  performance: {
+    maxAssetSize: 100000,
+  },
   plugins: [
     new HtmlWebpackPlugin({ template: './src/index.html' })
   ],

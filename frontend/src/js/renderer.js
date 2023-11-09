@@ -15,6 +15,7 @@ function render() {
 	renderer.setSize( window.innerWidth, window.innerHeight );
 	divAnimation.appendChild(renderer.domElement);
 	document.body.appendChild( divAnimation );
+	console.log("here");
 	scene.add( cube );
 
 	camera.position.z = 5;
