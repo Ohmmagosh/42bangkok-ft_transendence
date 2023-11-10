@@ -28,12 +28,10 @@ function login() {
 	formElement.setAddElement(divPassword.getElement());
 	formElement.setAddElement(buttonLogin.getElement());
 
-	// divContainer.setAddElement(formElement.getElement());
 	divRow.setAddElement(headerText.getElement());
 	divRow.setAddElement(formElement.getElement());
 	divContainer.setAddElement(divRow.getElement());
 	document.body.appendChild(divContainer.getElement());
-	// document.body.appendChild(label.getElement());
 }
 
 export default login;
