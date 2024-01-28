@@ -1,0 +1,11 @@
+users
+
+[models]
+- username
+- password (hashing?)
+
+[crud]
+- create (user) - post
+- read (info) - get
+- update (history log) - post
+- delete (user) - get
