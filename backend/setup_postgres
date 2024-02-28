@@ -1,5 +1,5 @@
 // install POSTGRES
-sudo apt install postgresql postgresql-contrib
+sudo apt install postgresql postgresql-contrib psycopg
 sudo systemctl start postgresql.service
 
 // setup db and user
