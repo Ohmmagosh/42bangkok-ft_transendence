@@ -3,25 +3,48 @@ from datetime import datetime
 from .models import *
 from typing import List
 
-class UserList(Schema):
+class ErrorSchema(Schema):
+    detail: str
+
+class UserListSchema(Schema):
+    id: int
     username: str
+
+class UserLogin(Schema):
+    username: str
+    password: str
 
 class UserProfileSchema(ModelSchema):
     class Meta:
         model = UserProfile
-        exclude = ['id']
+        exclude = ['id', 'user']
 
 class UserStatSchema(ModelSchema):
     class Meta:
         model = UserStat
-        exclude = ['id']
+        exclude = ['id', 'user']
 
 class UserSchema(ModelSchema):
     class Meta:
         model = User
-        fields = ['id', 'username','password']
+        fields = ['username','first_name', 'last_name', 'is_active']
 
-class UserCombinedSchema(Schema):
+class UserDataSchema(Schema):
+    id: int
     user: UserSchema
-    user_profile: UserProfileSchema
-    user_stat: UserStatSchema
+    profile: UserProfileSchema
+    stat: UserStatSchema
+
+
+class UserCreateSchema(Schema):
+    username: str
+    password: str
+
+class UserEditSchema(ModelSchema):
+    class Meta:
+        model = User
+        fields = ['first_name', 'last_name']
+
+class UserEditDataSchema(Schema):
+    user: UserEditSchema
+    profile: UserProfileSchema

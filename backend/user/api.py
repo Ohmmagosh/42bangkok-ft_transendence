@@ -1,58 +1,94 @@
 from django.contrib.auth import authenticate, login, logout
-from django.shortcuts import get_object_or_404
 from django.contrib.auth.models import User
 from django.contrib.auth.hashers import make_password, check_password
-from ninja import Router
+from django.shortcuts import get_object_or_404
+
+from ninja import Router, Form
 from ninja.security import django_auth
 from datetime import datetime
 from typing import List
 from .schema import *
 from .models import *
 
-router = Router()
+router = Router(auth=django_auth)
 
 
 # Request Authentication
-@router.post('/get_auth', auth=None)
-def get_auth(request, data: UserSchema):
-    username = data.username
-    password = data.password
-    user = authenticate(username=username, password=password)
+@router.post('/login/', auth=None)
+def user_login(request, data: Form[UserLogin]):
+    user = authenticate(username=data.username, password=data.password)
     if user is not None:
         login(request, user)
-        return f'Authorized Successfully {user}'
-    return f'Failed to get authorized'
+        return {'detail': 'login success', 'id': user.id}
+    return {'detail': 'login fail'}
 
 
-# Get basic multiple User profile
-@router.get('/get_users' ,auth=django_auth, response=List[UserList])
+@router.post('/logout/')
+def user_logout(request):
+    logout(request)
+    return {'detail': 'logout success'}
+
+
+# Get all user
+@router.get('/get_users/', response=List[UserListSchema])
 def get_users(request):
-    users =  User.objects.all()
+    users =  User.objects.filter(is_active=1)
     return users
 
 
-# # Create new user
-# @router.post('/create_user')
-# def create_user(request, payload: UserSchema):
-#     user = User.objects.filter(username=payload.username)
-#     if user:
-#         return {'detail': 'username is exist'}
-#     else:
-#         user = User.objects.create(**payload.dict())
-#         user.set_password(payload.password)
-#         user.save()
-#         ustat = UserStat.objects.create(id=user.id)
-#         user_profile = UserProfile.objects.create(id=user.id, user_stat=ustat, first_name=user.username)
-#         return user
-
-
 # get single user
-@router.get('/get_user/{userid}', response=UserCombinedSchema)
+@router.get('/get_user/{userid}/', response=UserDataSchema)
 def get_user(request, userid: int):
     user = User.objects.get(id=userid)
     user_data = {
+        'id': user.id,
         'user': user,
-        'user_profile': user.userprofile,
-        'user_stat': user.userstat
+        'profile': user.profile,
+        'stat': user.stat
     }
     return user_data
+
+
+# create new user
+@router.post('/create_user/', auth=None, response={200:UserListSchema, 404:ErrorSchema})
+def create_user(request, data:UserCreateSchema):
+    if User.objects.filter(username=data.username).exists():
+        return 404, {'detail': 'User does exists'}
+    else:
+        user = User(username=data.username)        
+        user.set_password(user.password)
+        user.save()
+        profile = UserProfile.objects.create(user=user)
+        stat = UserStat.objects.create(user=user)
+        return user
+
+
+# delete user
+@router.delete('delete_user/{userid}/')
+def delete_user(request, userid: int):
+    user = get_object_or_404(User, id=userid)
+    user.delete()
+    return {'detail': 'Deleted success', 'id': userid}
+
+
+# edit user profile
+@router.put('/edit_profile/{userid}/')
+def edit_profile(request, userid: int, data:UserEditDataSchema):
+    user = get_object_or_404(User, id=userid)
+    user.first_name = data.user.first_name
+    user.last_name = data.user.last_name
+    user.save()
+    profile = get_object_or_404(UserProfile, user=userid)
+    profile.nick_name = data.profile.nick_name
+    profile.save()
+    return 200, {'detail': 'update success', 'id': userid}
+
+
+# save stat
+@router.put('/save_stat/{userid}/')
+def save_stat(request, userid:int, data:UserStatSchema):
+    stat = get_object_or_404(UserStat, user=userid)
+    stat.win += data.win
+    stat.lose += data.lose
+    stat.save()
+    return 200, {'detail': 'update success', 'id': userid}
