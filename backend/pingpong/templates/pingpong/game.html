@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ping Pong Game</title>
+    <style>
+        canvas {
+            display: block;
+            margin: auto;
+            background-color: black;
+        }
+    </style>
+</head>
+<body>
+
+    {{ room_name|json_script:"room-name" }}
+
+    <canvas id="gameCanvas" width="800" height="600"></canvas>
+
+    <script>
+        const roomName = JSON.parse(document.getElementById('room-name').textContent)
+        const gameSocket = new WebSocket(
+            'ws://'
+            + window.location.host
+            + '/ws/pingpong/'
+            + roomName
+            + '/'
+        );
+
+
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+
+        const paddleHeight = 100;
+        const paddleWidth = 10;
+        const ballSize = 10;
+
+        let ballX = canvas.width / 2;
+        let ballY = canvas.height / 2;
+        let ballSpeedX = 5;
+        let ballSpeedY = 5;
+
+        let paddle1Y = canvas.height / 2 - paddleHeight / 2;
+        let paddle2Y = canvas.height / 2 - paddleHeight / 2;
+
+        function drawRect(x, y, width, height, color) {
+            ctx.fillStyle = color;
+            ctx.fillRect(x, y, width, height);
+        }
+
+        function drawCircle(x, y, radius, color) {
+            ctx.fillStyle = color;
+            ctx.beginPath();
+            ctx.arc(x, y, radius, 0, Math.PI * 2, true);
+            ctx.fill();
+        }
+
+        function drawNet() {
+            for (let i = 0; i < canvas.height; i += 40) {
+                drawRect(canvas.width / 2 - 1, i, 2, 20, 'white');
+            }
+        }
+
+        function draw() {
+            // Clear canvas
+            drawRect(0, 0, canvas.width, canvas.height, 'black');
+
+            // Draw paddles
+            drawRect(0, paddle1Y, paddleWidth, paddleHeight, 'white');
+            drawRect(canvas.width - paddleWidth, paddle2Y, paddleWidth, paddleHeight, 'white');
+
+            // Draw ball
+            drawCircle(ballX, ballY, ballSize, 'white');
+
+            // Draw net
+            drawNet();
+        }
+
+        function update() {
+            // Move ball
+            ballX += ballSpeedX;
+            ballY += ballSpeedY;
+
+            // Ball collision with top/bottom walls
+            if (ballY <= 0 || ballY >= canvas.height) {
+                ballSpeedY = -ballSpeedY;
+            }
+
+            // Ball collision with paddles
+            if ((ballX <= paddleWidth && ballY > paddle1Y && ballY < paddle1Y + paddleHeight) ||
+                (ballX >= canvas.width - paddleWidth && ballY > paddle2Y && ballY < paddle2Y + paddleHeight)) {
+                ballSpeedX = -ballSpeedX;
+            }
+
+            // Ball out of bounds (scoring)
+            if (ballX < 0 || ballX > canvas.width) {
+                ballX = canvas.width / 2;
+                ballY = canvas.height / 2;
+                ballSpeedX = -ballSpeedX;
+            }
+        }
+
+        function movePaddle(event) {
+            const mouseY = event.clientY - canvas.offsetTop;
+            paddle1Y = mouseY - paddleHeight / 2;
+
+            gameSocket.send(JSON.stringify({
+                'message': paddle1Y
+            }))
+         }
+
+        canvas.addEventListener('mousemove', movePaddle);
+
+        function gameLoop() {
+            update();
+            draw();
+            requestAnimationFrame(gameLoop);
+        }
+
+        gameLoop();
+    </script>
+</body>
+</html>

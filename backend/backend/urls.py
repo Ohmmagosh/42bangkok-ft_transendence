@@ -24,4 +24,5 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', api.urls),
     path('chat/', include('chat.urls')),
+    path('pingpong/', include('pingpong.urls')),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

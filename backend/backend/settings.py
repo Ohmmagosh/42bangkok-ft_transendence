@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     
     'daphne',
     'chat',
+    'pingpong',
 
     'user.apps.UserConfig',
     'match.apps.MatchConfig',
