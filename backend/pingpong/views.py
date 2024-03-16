@@ -7,4 +7,5 @@ def index(request):
 
 
 def game(request, room_name):
-    return render(request, 'pingpong/game.html', {'room_name': room_name})
+    player = request.POST['name']
+    return render(request, 'pingpong/game.html', {'room_name': room_name, 'player': player})

@@ -1,27 +1,40 @@
 <!-- chat/templates/chat/index.html -->
 <!DOCTYPE html>
 <html>
-<head>
-    <meta charset="utf-8"/>
+  <head>
+    <meta charset="utf-8" />
     <title>Lobby</title>
-</head>
-<body>
-    What room would you like to enter?<br>
-    <input id="room-name-input" type="text" size="100"><br>
-    <input id="room-name-submit" type="button" value="Enter">
+  </head>
+  <body>
+    <form action="" method="post" id="game-form">
+        {% csrf_token %}
+      <div>
+        <p>What is your name?</p>
+        <input type="text" name="name" id="name" size="100" />
+      </div>
+      <div>
+        <p>What room would you like to enter?<br /></p>
+        <input id="room-name-input" type="text" size="100" /><br />
+        <input id="room-name-submit" type="button" value="Enter" />
+      </div>
+    </form>
 
     <script>
-        document.querySelector('#room-name-input').focus();
-        document.querySelector('#room-name-input').onkeyup = function(e) {
-            if (e.key === 'Enter') {  // enter, return
-                document.querySelector('#room-name-submit').click();
-            }
-        };
+      document.querySelector("#room-name-input").focus();
+      document.querySelector("#room-name-input").onkeyup = function (e) {
+        if (e.key === "Enter") {
+          // enter, return
+          document.querySelector("#room-name-submit").click();
+        }
+      };
 
-        document.querySelector('#room-name-submit').onclick = function(e) {
-            var roomName = document.querySelector('#room-name-input').value;
-            window.location.pathname = '/pingpong/' + roomName + '/';
-        };
+      document.querySelector("#room-name-submit").onclick = function (e) {
+        form = document.querySelector("#game-form");
+        var roomName = document.querySelector("#room-name-input").value;
+        form.action = "/pingpong/" + roomName + "/"
+        form.submit()
+        {% comment %} window.location.pathname = "/pingpong/" + roomName + "/"; {% endcomment %}
+      };
     </script>
-</body>
+  </body>
 </html>
