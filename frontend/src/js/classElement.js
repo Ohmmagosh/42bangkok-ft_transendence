@@ -26,8 +26,8 @@ export class ClassElement {
 }
 
 export class LabelElement extends ClassElement {
-	constructor(ifor, text) {
-		super('label', '', '', text);
+	constructor(ifor, className, text) {
+		super('label', className, '', text);
 		this.ele.htmlFor = ifor;
 	}
 
@@ -61,5 +61,17 @@ export class ButtonElement extends ClassElement {
 	}
 	setOnclick(onclick) {
 		this.ele.onclick = onclick;
+	}
+}
+
+class State {
+	constructor(state) {
+		this.state = state;
+	}
+	getState() {
+		return this.state;
+	}
+	setState(state) {
+		this.state = state;
 	}
 }

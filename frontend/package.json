@@ -2,7 +2,7 @@
   "name": "ft-transendence",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "main.js",
   "scripts": {
     "start": "webpack serve",
     "build": "webpack build --mode=production",
@@ -13,6 +13,7 @@
   "dependencies": {
     "@popperjs/core": "^2.11.8",
     "bootstrap": "^5.3.2",
+    "fs": "^0.0.1-security",
     "three": "^0.158.0"
   },
   "devDependencies": {
